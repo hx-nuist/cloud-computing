@@ -1,0 +1,241 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Cloud Computing Experiment Report - Lab4</title>
+    
+<style>
+body {
+    font-family: Arial, sans-serif;
+    margin: 2cm;
+    line-height: 1.6;
+}
+h1, h2, h3, h4, h5, h6 {
+    color: #333;
+    margin-top: 24px;
+    margin-bottom: 16px;
+}
+h1 {
+    font-size: 2em;
+    border-bottom: 2px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+h2 {
+    font-size: 1.5em;
+    border-bottom: 1px solid #eaecef;
+    padding-bottom: 0.3em;
+}
+p {
+    margin-bottom: 16px;
+}
+ul, ol {
+    padding-left: 2em;
+    margin-bottom: 16px;
+}
+code {
+    background-color: #f6f8fa;
+    padding: 0.2em 0.4em;
+    border-radius: 3px;
+    font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 85%;
+}
+pre {
+    background-color: #f6f8fa;
+    padding: 16px;
+    border-radius: 6px;
+    overflow: auto;
+    margin-bottom: 16px;
+}
+pre code {
+    padding: 0;
+    background-color: transparent;
+    font-size: 100%;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    margin: 16px 0;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+    margin-bottom: 16px;
+}
+table, th, td {
+    border: 1px solid #ddd;
+}
+th, td {
+    padding: 8px 12px;
+    text-align: left;
+}
+th {
+    background-color: #f6f8fa;
+}
+</style>
+
+</head>
+<body>
+    <h1>Cloud Computing Experiment Report - Lab4</h1>
+<h2>Experiment Objectives</h2>
+<ol>
+<li>Install and configure Docker Desktop</li>
+<li>Deploy Gitea service using Docker</li>
+<li>Verify Gitea support for LFS</li>
+<li>Create a repository with large files (1G+)</li>
+<li>Create a repository for this module and commit work to it</li>
+<li>Install Gitea without Docker, choose database freely</li>
+<li>Learn data backup and restoration</li>
+</ol>
+<h2>Experiment Environment</h2>
+<ul>
+<li>Operating System: Windows</li>
+<li>Docker Version: 28.4.0</li>
+<li>Gitea Version: 1.25.3</li>
+</ul>
+<h2>Experiment Steps</h2>
+<h3>1. Install Docker Desktop</h3>
+<h4>Windows Installation Steps</h4>
+<ol>
+<li>
+<p>Open PowerShell terminal and run the command to install WSL:
+   <code>powershell
+   wsl --install</code></p>
+</li>
+<li>
+<p>Download and install Docker Desktop</p>
+</li>
+<li>Register Docker account and login</li>
+</ol>
+<p><img alt="Docker Installation" src="1.png" /></p>
+<h3>2. Install Gitea using Docker</h3>
+<h4>Step 1: Create directory structure</h4>
+<p><code>powershell
+mkdir -p gitea/{data,config}</code></p>
+<h4>Step 2: Create docker-compose.yml file</h4>
+<p>```yaml
+version: '3'</p>
+<p>services:
+  gitea:
+    image: gitea/gitea:latest
+    container_name: gitea
+    environment:
+      - USER_UID=1000
+      - USER_GID=1000
+      - GITEA__database__DB_TYPE=sqlite3
+    restart: always
+    volumes:
+      - ./data:/data
+      - ./config:/etc/gitea
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "3000:3000"
+      - "222:22"
+```</p>
+<h4>Step 3: Start Gitea service</h4>
+<p><code>powershell
+docker-compose up -d</code></p>
+<p><img alt="Start Gitea" src="2.png" /></p>
+<h3>3. Gitea Initial Configuration</h3>
+<ol>
+<li>Visit http://localhost:3000/</li>
+<li>Complete initial configuration:</li>
+<li>Set up administrator account</li>
+<li>Configure SSH port to 222</li>
+<li>Enable LFS feature</li>
+</ol>
+<p><img alt="Gitea Configuration" src="3.png" /></p>
+<h3>4. Verify Gitea Support for LFS</h3>
+<h4>Step 1: Check LFS Configuration</h4>
+<p>After logging into Gitea, go to Admin Panel → Settings → LFS to confirm LFS is enabled.</p>
+<p><img alt="LFS Configuration" src="4.png" /></p>
+<h4>Step 2: Configure LFS Tracking Rules</h4>
+<p>Configure LFS tracking rules in the repository, for example tracking all .bin files:
+<code>powershell
+git lfs track "*.bin"</code></p>
+<h3>5. Create Repository with Large Files</h3>
+<h4>Step 1: Create test file</h4>
+<p><code>powershell
+fsutil file createnew large-test-file.bin 1073741824</code></p>
+<h4>Step 2: Push large file</h4>
+<p><code>powershell
+git add large-test-file.bin
+git commit -m "Add 1GB test file"
+git push origin main</code></p>
+<p><img alt="Large File Upload" src="5.png" /></p>
+<h3>6. Create Module Repository</h3>
+<ol>
+<li>Create a new repository for cloud computing course</li>
+<li>Commit experiment work to this repository</li>
+</ol>
+<p><img alt="Create Module Repository" src="6.png" /></p>
+<h3>7. Install Gitea without Docker</h3>
+<ol>
+<li>Download Gitea binary file</li>
+<li>Configure necessary directory structure</li>
+<li>Run Gitea service</li>
+<li>Complete initial configuration</li>
+</ol>
+<p><img alt="Non-Docker Installation" src="7.png" /></p>
+<h2>Experiment Results and Analysis</h2>
+<h3>1. LFS Support Verification</h3>
+<ul>
+<li>✅ Gitea successfully enabled LFS feature</li>
+<li>✅ Able to create and manage LFS tracking rules</li>
+<li>✅ Able to upload and store large files</li>
+</ul>
+<h3>2. Large File Repository Creation</h3>
+<ul>
+<li>✅ Successfully created repository with 1GB+ large file</li>
+<li>✅ File stored correctly via LFS</li>
+</ul>
+<h3>3. Module Repository Creation</h3>
+<ul>
+<li>✅ Successfully created cloud computing course repository</li>
+<li>✅ Able to commit and manage course-related files</li>
+</ul>
+<h3>4. Non-Docker Installation</h3>
+<ul>
+<li>✅ Successfully installed Gitea manually</li>
+<li>✅ Able to run and access normally</li>
+</ul>
+<h2>Problems Encountered and Solutions</h2>
+<ol>
+<li>
+<p><strong>Problem</strong>: Docker image pull failed (403 Forbidden)
+   <strong>Solution</strong>: Configure multiple Docker image sources, restart Docker service</p>
+</li>
+<li>
+<p><strong>Problem</strong>: LFS push failed (HTTP 405 error)
+   <strong>Solution</strong>: Fix ROOT_URL configuration, remove IDE parameters</p>
+</li>
+<li>
+<p><strong>Problem</strong>: File upload size limit
+   <strong>Solution</strong>: Modify Gitea configuration, increase maximum file upload limit</p>
+</li>
+</ol>
+<h2>Experiment Insights</h2>
+<p>Through this experiment, I learned:
+1. Docker installation and configuration
+2. Deploying Gitea service using Docker Compose
+3. Gitea initial configuration and LFS functionality
+4. Large file management and version control
+5. Comparison of different deployment methods (Docker vs manual installation)</p>
+<p>This experiment deepened my understanding of containerized deployment and version control systems, especially in terms of large file management.</p>
+<h2>Experiment Summary</h2>
+<p>| Experiment Task | Completion Status |
+|----------------|------------------|
+| Install Docker Desktop | ✅ Completed |
+| Deploy Gitea using Docker | ✅ Completed |
+| Verify LFS support | ✅ Completed |
+| Create large file repository | ✅ Completed |
+| Create module repository | ✅ Completed |
+| Install Gitea without Docker | ✅ Completed |
+| Write experiment report | ✅ Completed |</p>
+<hr />
+<p><strong>Experiment Report Completion Date</strong>: 2025-12-30
+<strong>Experimenter</strong>: [Your Name]
+<strong>Student ID</strong>: [Your Student ID]</p>
+</body>
+</html>
